@@ -1,14 +1,23 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
+	"t3/m/v2/models"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
 	r := gin.Default()
 
+	models.ConnectDatabase()
+
 	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(200, gin.H{
-			"message": "pong",
-		})
+		c.JSON(
+			http.StatusOK,
+			gin.H{
+				"message": "pong",
+			})
 	})
 
 	r.Run()
