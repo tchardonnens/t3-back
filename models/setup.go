@@ -15,7 +15,7 @@ func ConnectDatabase() {
 		panic("Failed to connect to database!")
 	}
 
-	err = database.AutoMigrate(&Poi{})
+	err = database.AutoMigrate(&Site{})
 	if err != nil {
 		return
 	}
