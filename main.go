@@ -28,7 +28,15 @@ func main() {
 
 	r.POST("/api/v1/parameters", func(c *gin.Context) {
 		var parameters models.Parameters
-		c.BindJSON(&parameters)
+		err := c.BindJSON(&parameters)
+		if err != nil {
+			c.JSON(
+				http.StatusBadRequest,
+				gin.H{
+					"message": "bad request",
+				})
+			return
+		}
 		c.JSON(
 			http.StatusOK,
 			gin.H{
@@ -39,5 +47,8 @@ func main() {
 			})
 	})
 
-	r.Run()
+	err := r.Run()
+	if err != nil {
+		panic(err)
+	}
 }
