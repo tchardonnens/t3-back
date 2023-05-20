@@ -5,37 +5,37 @@ import (
 )
 
 const (
-	OpeningHour int = 9
-	ClosingHour int = 17
-	TimeToLunch int = 1
+	OpeningHour float64 = 9.0
+	ClosingHour float64 = 17.0
+	TimeToLunch float64 = 1.0
 )
 
-var ActivityDurations = map[string]int{
-	"museum":     2,
-	"garden":     1,
-	"illustrium": 2,
+var ActivityDurations = map[string]float64{
+	"museum":     2.0,
+	"garden":     1.0,
+	"illustrium": 2.0,
 }
 
 const OneDay = 1
 
-func GetFreeTime(numberOfDays int) int {
-	return ((ClosingHour - OpeningHour) - TimeToLunch) * numberOfDays
+func GetFreeTime(numberOfDays int) float64 {
+	return ((ClosingHour - OpeningHour) - TimeToLunch) * float64(numberOfDays)
 }
 
-func GetTotalNumberOfActivities(freeTime int) int {
-	meanTimePerActivity := (ActivityDurations["garden"] + ActivityDurations["museum"] + ActivityDurations["illustrium"]) / 3
-	return freeTime / meanTimePerActivity
+func GetTotalNumberOfActivities(freeTimeHours float64) int {
+	meanTimePerActivity := math.Ceil((ActivityDurations["garden"] + ActivityDurations["museum"] + ActivityDurations["illustrium"]) / float64(len(ActivityDurations)))
+	return int(math.Floor(freeTimeHours / meanTimePerActivity))
 }
 
-func GetAmountOfActivitiesPerDay(totalNumberOfActivities, numberOfDays int) int {
-	amountOfActivitiesPerDay := totalNumberOfActivities / numberOfDays
-	roundedAmountOfActivitiesPerDay := int(math.Floor(float64(amountOfActivitiesPerDay)))
+func GetAmountOfActivitiesPerDay(totalNumberOfActivities float64, numberOfDays int) int {
+	amountOfActivitiesPerDay := totalNumberOfActivities / float64(numberOfDays)
+	roundedAmountOfActivitiesPerDay := int(math.Ceil(amountOfActivitiesPerDay))
 	return roundedAmountOfActivitiesPerDay
 }
 
 func IsValidScheduleForTheDay(activitiesType []string) bool {
 	totalFreeTime := GetFreeTime(OneDay)
-	totalActivityTime := 0
+	totalActivityTime := 0.0
 	for _, activity := range activitiesType {
 		totalActivityTime += ActivityDurations[activity]
 	}
