@@ -15,7 +15,8 @@
 
 .DS_Store
 
-*.db
 
 # Dependency directories (remove the comment below to include it)
 # vendor/
+t3-v7.csv
+t3.db
