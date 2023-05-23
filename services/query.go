@@ -15,10 +15,10 @@ func QueryFromDB(parameters models.Parameters) (sites []models.Site) {
 	}
 	defer db.Close()
 
-	query := `SELECT * FROM sites WHERE city = ? AND type = ?;`
+	query := `SELECT * from sites where (city = ? OR region = ? or department = ? or postcode = ?) AND "type" = ?;`
 	//query := `SELECT * FROM sites WHERE spellfix1_city MATCH ? AND type = ?;`
 
-	rows, err := db.Query(query, parameters.Location, parameters.Types)
+	rows, err := db.Query(query, parameters.Location, parameters.Location, parameters.Location, parameters.Location, parameters.Types)
 	if err != nil {
 		log.Fatal(err)
 	}
