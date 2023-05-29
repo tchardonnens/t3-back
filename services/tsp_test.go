@@ -5,7 +5,6 @@ import (
 	"testing"
 )
 
-// TestDistance tests the distance function
 func TestDistance(t *testing.T) {
 	p := models.Point{X: 0, Y: 0}
 	q := models.Point{X: 3, Y: 4}
@@ -16,7 +15,6 @@ func TestDistance(t *testing.T) {
 	}
 }
 
-// TestGetNearestPoint tests the getNearestPoint function
 func TestGetNearestPoint(t *testing.T) {
 	points := []models.Point{
 		{Id: 1, X: 0, Y: 0},
