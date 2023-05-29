@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"net/http"
 	"t3/m/v2/models"
 	"t3/m/v2/services"
@@ -76,9 +75,8 @@ func main() {
 		freeTimeHours := services.GetFreeTime(parameters.Days)
 		totalNumberOfActivities := services.GetTotalNumberOfActivities(freeTimeHours)
 		maxActivityPerDay := services.GetAmountOfActivitiesPerDay(float64(totalNumberOfActivities), parameters.Days)
-		fmt.Println("maxActivityPerDay", maxActivityPerDay)
 
-		tsp := services.TSP(points, maxActivityPerDay)
+		tsp := services.TSP(points, maxActivityPerDay, parameters.Days)
 
 		tspSites := make([][]models.Site, len(tsp))
 		for i, day := range tsp {
@@ -90,11 +88,10 @@ func main() {
 		c.JSON(
 			http.StatusOK,
 			gin.H{
-				"Location":        parameters.Location,
-				"Days":            parameters.Days,
-				"Types":           parameters.Types,
-				"NumberOfResults": len(siteResults),
-				"TSP":             tspSites,
+				"Location": parameters.Location,
+				"Days":     parameters.Days,
+				"Types":    parameters.Types,
+				"TSP":      tspSites,
 			})
 	})
 

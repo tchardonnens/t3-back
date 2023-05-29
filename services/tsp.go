@@ -31,13 +31,19 @@ func getNearestPoint(currentpoint models.Point, points []models.Point) (models.P
 	return points[minIndex], minIndex
 }
 
-func planTour(points []models.Point, maxPerDay int, maxDist float64) [][]models.Point {
+func planTour(points []models.Point, maxPerDay int, maxDist float64, maxDays int) [][]models.Point {
 	days := [][]models.Point{}
-	visitedPoints := 0
 
-	for visitedPoints < len(points) {
+	for dayCount := 0; dayCount < maxDays; dayCount++ {
 		day := []models.Point{}
-		currentPoint := points[0] // or wherever you want to start
+		currentPoint := points[0]
+		for _, point := range points {
+			if !point.Visited {
+				currentPoint = point
+				break
+			}
+		}
+
 		for len(day) < maxPerDay {
 			nearestPoint, nearestIndex := getNearestPoint(currentPoint, points)
 			if nearestIndex == -1 || distance(currentPoint, nearestPoint) > maxDist {
@@ -46,7 +52,6 @@ func planTour(points []models.Point, maxPerDay int, maxDist float64) [][]models.
 			day = append(day, nearestPoint)
 			points[nearestIndex].Visited = true
 			currentPoint = nearestPoint
-			visitedPoints++
 		}
 
 		days = append(days, day)
@@ -55,9 +60,9 @@ func planTour(points []models.Point, maxPerDay int, maxDist float64) [][]models.
 	return days
 }
 
-func TSP(points []models.Point, maxPerDay int) [][]models.Point {
-	maxDist := 10.0
-	tour := planTour(points, maxPerDay, maxDist)
+func TSP(points []models.Point, maxPerDay int, maxDays int) [][]models.Point {
+	maxDist := 50.0
+	tour := planTour(points, maxPerDay, maxDist, maxDays)
 
 	for i, day := range tour {
 		fmt.Println("Day", i+1)
