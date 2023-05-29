@@ -5,8 +5,8 @@ import (
 )
 
 func TestGetFreeTime(t *testing.T) {
-	if GetFreeTime(1) != 7.0 {
-		t.Errorf("Expected 7.0, got %f", GetFreeTime(1))
+	if GetFreeTime(1) != 8.0 {
+		t.Errorf("Expected 8.0, got %f", GetFreeTime(1))
 	}
 }
 

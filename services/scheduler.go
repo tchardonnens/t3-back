@@ -6,7 +6,7 @@ import (
 
 const (
 	OpeningHour float64 = 9.0
-	ClosingHour float64 = 17.0
+	ClosingHour float64 = 18.0
 	TimeToLunch float64 = 1.0
 )
 

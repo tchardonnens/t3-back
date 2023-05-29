@@ -1,36 +1,70 @@
 package services
 
 import (
+	"fmt"
 	"math"
 	"t3/m/v2/models"
 )
 
 func distance(p, q models.Point) float64 {
-	return math.Hypot(p.X-q.X, p.Y-q.Y)
+	return math.Sqrt(math.Pow(q.X-p.X, 2) + math.Pow(q.Y-p.Y, 2))
 }
 
-func nearestNeighbourAlgorithm(points []models.Point) []models.Point {
-	visited := make([]bool, len(points))
-	// Start from the first point
-	tour := []models.Point{points[0]}
-	visited[0] = true
+func getNearestPoint(currentpoint models.Point, points []models.Point) (models.Point, int) {
+	minIndex := -1
+	minDist := math.MaxFloat64
 
-	for i := 1; i < len(points); i++ {
-		last := tour[i-1]
-		next := -1
-		for j := 0; j < len(points); j++ {
-			if !visited[j] && (next == -1 || distance(last, points[j]) < distance(last, points[next])) {
-				next = j
+	for i, point := range points {
+		if !point.Visited {
+			dist := distance(currentpoint, point)
+			if dist < minDist {
+				minIndex = i
+				minDist = dist
 			}
 		}
-		tour = append(tour, points[next])
-		visited[next] = true
 	}
 
-	return tour
+	if minIndex == -1 {
+		return models.Point{}, -1
+	}
+
+	return points[minIndex], minIndex
 }
 
-func TSP(points []models.Point) []models.Point {
-	tour := nearestNeighbourAlgorithm(points)
+func planTour(points []models.Point, maxPerDay int, maxDist float64) [][]models.Point {
+	days := [][]models.Point{}
+	visitedPoints := 0
+
+	for visitedPoints < len(points) {
+		day := []models.Point{}
+		currentPoint := points[0] // or wherever you want to start
+		for len(day) < maxPerDay {
+			nearestPoint, nearestIndex := getNearestPoint(currentPoint, points)
+			if nearestIndex == -1 || distance(currentPoint, nearestPoint) > maxDist {
+				break
+			}
+			day = append(day, nearestPoint)
+			points[nearestIndex].Visited = true
+			currentPoint = nearestPoint
+			visitedPoints++
+		}
+
+		days = append(days, day)
+	}
+
+	return days
+}
+
+func TSP(points []models.Point, maxPerDay int) [][]models.Point {
+	maxDist := 10.0
+	tour := planTour(points, maxPerDay, maxDist)
+
+	for i, day := range tour {
+		fmt.Println("Day", i+1)
+		for _, point := range day {
+			fmt.Println("  Visit:", point.Name)
+		}
+	}
+
 	return tour
 }

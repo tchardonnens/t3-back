@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"net/http"
 	"t3/m/v2/models"
 	"t3/m/v2/services"
@@ -61,23 +62,39 @@ func main() {
 				})
 			return
 		}
-		results := services.QueryFromDB(parameters)
+		siteResults := services.QueryFromDB(parameters)
 
-		points := make([]models.Point, len(results))
-		for i, site := range results {
-			points[i] = models.SiteToPoint(site)
+		pointToSite := make(map[int]models.Site)
+
+		points := make([]models.Point, len(siteResults))
+		for i, site := range siteResults {
+			point := models.SiteToPoint(site)
+			points[i] = point
+			pointToSite[point.Id] = site // Save the site for later
 		}
 
-		tsp := services.TSP(points)
+		freeTimeHours := services.GetFreeTime(parameters.Days)
+		totalNumberOfActivities := services.GetTotalNumberOfActivities(freeTimeHours)
+		maxActivityPerDay := services.GetAmountOfActivitiesPerDay(float64(totalNumberOfActivities), parameters.Days)
+		fmt.Println("maxActivityPerDay", maxActivityPerDay)
+
+		tsp := services.TSP(points, maxActivityPerDay)
+
+		tspSites := make([][]models.Site, len(tsp))
+		for i, day := range tsp {
+			tspSites[i] = make([]models.Site, len(day))
+			for j, point := range day {
+				tspSites[i][j] = pointToSite[point.Id]
+			}
+		}
 		c.JSON(
 			http.StatusOK,
 			gin.H{
-				"Location": parameters.Location,
-				"Days":     parameters.Days,
-				"Types":    parameters.Types,
-				"Results":  results,
-				"Points":   points,
-				"TSP":      tsp,
+				"Location":        parameters.Location,
+				"Days":            parameters.Days,
+				"Types":           parameters.Types,
+				"NumberOfResults": len(siteResults),
+				"TSP":             tspSites,
 			})
 	})
 
