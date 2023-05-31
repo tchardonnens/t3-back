@@ -5,11 +5,12 @@ import (
 	"encoding/csv"
 	"log"
 	"os"
+	"t3/m/v2/models"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func LoadSites() {
+func LoadSites() ([]models.Site, error) {
 	log.Println("====== Creating sites database... ======")
 	csvFile, err := os.Open("t3-v7.csv")
 	if err != nil {
@@ -66,7 +67,28 @@ func LoadSites() {
 		log.Fatal(err)
 	}
 
+	var sites []models.Site
+	log.Default().Println("===== Map model.Sites in the local variable =====")
 	for _, record := range records {
+
+		site := models.Site{
+			Name:        record[0],
+			Type:        record[1],
+			Lat:         record[2],
+			Lng:         record[3],
+			Street:      record[4],
+			City:        record[5],
+			Postcode:    record[6],
+			Department:  record[7],
+			Region:      record[8],
+			Website:     record[9],
+			Description: record[10],
+			Visited:     false,
+			Neighbours:  make([]*models.Site, 0),
+		}
+
+		sites = append(sites, site)
+
 		_, err = stmt.Exec(record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], record[9], record[10])
 		if err != nil {
 			log.Println("Error inserting record:", err)
@@ -85,4 +107,5 @@ func LoadSites() {
 
 	log.Println("Sites loaded")
 	log.Println("====== Sites database created ======")
+	return sites, nil
 }

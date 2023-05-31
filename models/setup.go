@@ -1,6 +1,8 @@
 package models
 
 import (
+	"log"
+
 	"github.com/glebarez/sqlite"
 	"gorm.io/gorm"
 )
@@ -17,6 +19,7 @@ func ConnectDatabase() {
 
 	err = database.AutoMigrate(&Site{})
 	if err != nil {
+		log.Fatalf("Could not migrate database: %v", err)
 		return
 	}
 
