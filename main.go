@@ -2,9 +2,7 @@ package main
 
 import (
 	"log"
-	"t3/m/v2/data"
 	"t3/m/v2/models"
-	"t3/m/v2/services"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -55,25 +53,26 @@ func main() {
 	// 	panic(err)
 	// }
 
-	sites, err := data.LoadSites()
+	services.implementDFS()
+	// sites, err := data.LoadSites()
 
-	if err != nil {
-		log.Fatal(err)
-	}
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
 
-	cities := make([]*models.Site, len(sites)) //Postcode    string  `json:"postcode"`
+	// cities := make([]*models.Site, len(sites)) //Postcode    string  `json:"postcode"`
 
-	for i, site := range sites {
-		cities[i] = &site
-	}
+	// for i, site := range sites {
+	// 	cities[i] = &site
+	// }
 
-	for _, city1 := range cities {
-		for _, city2 := range cities {
-			if city1 != city2 {
-				services.AddNeighbour(city1, city2)
-			}
-		}
-	}
+	// for _, city1 := range cities {
+	// 	for _, city2 := range cities {
+	// 		if city1 != city2 {
+	// 			services.AddNeighbour(city1, city2)
+	// 		}
+	// 	}
+	// }
 
-	services.DFS(cities[2]) // Start DFS from the first site.
+	// services.DFS(cities[2]) // Start DFS from the first site.
 }

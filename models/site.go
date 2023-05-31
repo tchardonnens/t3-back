@@ -16,3 +16,14 @@ type Site struct {
 	Visited     bool
 	Neighbours  []*Site `gorm:"-";`
 }
+
+/*
+//MARK: TO FIX
+-- got the error when I parse string to float, so setting lat and lng to String --
+var lat, long float64
+_, err := fmt.Sscan(record[2], &lat)
+if err != nil {
+	log.Fatal(err)
+	continue
+}
+*/
