@@ -7,7 +7,7 @@ import (
 	"t3/m/v2/models"
 )
 
-func newSite(name string, lat string, lng string, Type string, postcode string, region string, dep string, city string, street string, website string, des string, visted bool, neighbors []*models.Site) *models.Site {
+func newSite(name string, lat float64, lng float64, Type string, postcode string, region string, dep string, city string, street string, website string, des string, visted bool, neighbors []*models.Site) *models.Site {
 	return &models.Site{
 		Name:        name,
 		Lat:         lat,

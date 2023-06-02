@@ -30,8 +30,8 @@ func QueryFromDB(parameters models.Parameters) (sites []models.Site) {
 		var (
 			id          int
 			name        string
-			lat         string
-			lng         string
+			lat         float64
+			lng         float64
 			_type       string
 			postcode    string
 			region      string

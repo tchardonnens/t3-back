@@ -5,10 +5,30 @@ import (
 	"encoding/csv"
 	"log"
 	"os"
+	"strconv"
 	"t3/m/v2/models"
 
 	_ "github.com/mattn/go-sqlite3"
 )
+
+func correctFormat(val string) float64 {
+
+	if val == "" {
+		return 0.0000 // Or return a default value, e.g., "0"
+	}
+	floatVal, err := strconv.ParseFloat(val, 64)
+	if err != nil {
+		log.Println("Error converting string to float:", err)
+		return floatVal
+	}
+
+	// Adjusting for latitudes >90 and longitudes >180
+	if floatVal > 90.0 || floatVal > 180.0 {
+		floatVal = floatVal / 1000000
+	}
+
+	return floatVal
+}
 
 func LoadSites() ([]models.Site, error) {
 	log.Println("====== Creating sites database... ======")
@@ -70,12 +90,14 @@ func LoadSites() ([]models.Site, error) {
 	var sites []models.Site
 	log.Default().Println("===== Map model.Sites in the local variable =====")
 	for _, record := range records {
+		correctedLat := correctFormat(record[2])
+		correctedLng := correctFormat(record[3])
 
 		site := models.Site{
 			Name:        record[0],
 			Type:        record[1],
-			Lat:         record[2],
-			Lng:         record[3],
+			Lat:         correctedLat,
+			Lng:         correctedLng,
 			Street:      record[4],
 			City:        record[5],
 			Postcode:    record[6],
@@ -89,7 +111,7 @@ func LoadSites() ([]models.Site, error) {
 
 		sites = append(sites, site)
 
-		_, err = stmt.Exec(record[0], record[1], record[2], record[3], record[4], record[5], record[6], record[7], record[8], record[9], record[10])
+		_, err = stmt.Exec(record[0], record[1], correctedLat, correctedLng, record[4], record[5], record[6], record[7], record[8], record[9], record[10])
 		if err != nil {
 			log.Println("Error inserting record:", err)
 			rollbackErr := tx.Rollback()
