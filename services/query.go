@@ -70,3 +70,70 @@ func QueryFromDB(parameters models.Parameters) (sites []models.Site) {
 	}
 	return sites
 }
+
+func QueryFromDBAll() (sites []models.Site) {
+	db, err := sql.Open("sqlite3", "./t3.db")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	query := `SELECT * from sites;`
+	//query := `SELECT * FROM sites WHERE spellfix1_city MATCH ? AND type = ?;`
+
+	rows, err := db.Query(query)
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer rows.Close()
+
+	sites = make([]models.Site, 0)
+
+	for rows.Next() {
+		var (
+			id          int
+			name        string
+			lat         float64
+			lng         float64
+			_type       string
+			postcode    string
+			region      string
+			department  string
+			city        string
+			street      string
+			website     string
+			description string
+			visted      bool
+			neighbors   []*models.Site
+		)
+
+		err := rows.Scan(&id, &name, &lat, &lng, &_type, &postcode, &region, &department, &city, &street, &website, &description)
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		site := models.Site{
+			Id:          id,
+			Name:        name,
+			Lat:         lat,
+			Lng:         lng,
+			Type:        _type,
+			Postcode:    postcode,
+			Region:      region,
+			Department:  department,
+			City:        city,
+			Street:      street,
+			Website:     website,
+			Description: description,
+			Visited:     visted,
+			Neighbours:  neighbors,
+		}
+
+		sites = append(sites, site)
+
+		if err := rows.Err(); err != nil {
+			log.Fatal(err)
+		}
+	}
+	return sites
+}

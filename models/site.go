@@ -17,6 +17,10 @@ type Site struct {
 	Neighbours  []*Site `gorm:"-";`
 }
 
+func SiteHash(s *Site) string {
+	return s.Name
+}
+
 /*
 //MARK: TO FIX
 -- got the error when I parse string to float, so setting lat and lng to String --

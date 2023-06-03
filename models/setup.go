@@ -25,3 +25,9 @@ func ConnectDatabase() {
 
 	DB = database
 }
+
+func GetAllSites() []Site {
+	var sites []Site
+	DB.Find(&sites)
+	return sites
+}
