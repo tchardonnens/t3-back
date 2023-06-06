@@ -3,22 +3,24 @@ package services
 import (
 	"database/sql"
 	"log"
+	"os"
 	"t3/m/v2/models"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
 func QueryFromDB(parameters models.Parameters) (sites []models.Site) {
-	db, err := sql.Open("sqlite3", "./t3.db")
+	log.Println(os.Getenv("DB_PATH"))
+	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
 	if err != nil {
 		log.Fatal(err)
 	}
 	defer db.Close()
 
-	query := `SELECT * FROM sites WHERE city = ? AND type = ?;`
+	query := `SELECT * FROM sites WHERE (city = ? OR region = ? or department = ? or postcode = ?)AND type = ?;`
 	//query := `SELECT * FROM sites WHERE spellfix1_city MATCH ? AND type = ?;`
 
-	rows, err := db.Query(query, parameters.Location, parameters.Types)
+	rows, err := db.Query(query, parameters.Location, parameters.Location, parameters.Location, parameters.Location, parameters.Types)
 	if err != nil {
 		log.Fatal(err)
 	}

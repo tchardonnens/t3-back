@@ -61,7 +61,7 @@ func planTour(points []models.Point, maxPerDay int, maxDist float64, maxDays int
 }
 
 func TSP(points []models.Point, maxPerDay int, maxDays int) [][]models.Point {
-	maxDist := 50.0
+	maxDist := 0.5
 	tour := planTour(points, maxPerDay, maxDist, maxDays)
 
 	for i, day := range tour {
