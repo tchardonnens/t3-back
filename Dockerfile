@@ -1,12 +1,19 @@
-FROM golang:1.20.3-alpine3.17
+FROM golang:latest
+
+LABEL maintainer="Thomas Chardonnens <thomas.chardonnens@berkeley.edu>"
 
 WORKDIR /app
 
-COPY . .
+COPY go.mod go.sum ./
+
 RUN go mod download
 
-RUN CGO_ENABLED=0 GOOS=linux go build -o /t3-api
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o main .
 
 EXPOSE 8080
 
-CMD ["/t3-api"]
+CMD ["./main"]
+
+ENV DB_PATH=/home/debian/t3/t3.db

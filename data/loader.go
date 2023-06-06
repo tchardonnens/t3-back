@@ -11,7 +11,7 @@ import (
 
 func LoadSites() {
 	log.Println("====== Creating sites database... ======")
-	csvFile, err := os.Open("t3-v7.csv")
+	csvFile, err := os.Open("t3-v8.csv")
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -28,7 +28,7 @@ func LoadSites() {
 		log.Fatal("No records found at: " + csvFile.Name())
 	}
 
-	db, err := sql.Open("sqlite3", "./t3.db")
+	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
 	if err != nil {
 		log.Fatal(err)
 	}
