@@ -10,7 +10,6 @@ import (
 )
 
 func QueryFromDB(parameters models.Parameters) (sites []models.Site) {
-	log.Println(os.Getenv("DB_PATH"))
 	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
 	if err != nil {
 		log.Fatal(err)
