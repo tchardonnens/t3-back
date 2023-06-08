@@ -2,30 +2,101 @@ package services
 
 import (
 	"database/sql"
-	"log"
 	"os"
 	"t3/m/v2/models"
 
 	_ "github.com/mattn/go-sqlite3"
 )
 
-func QueryFromDB(parameters models.Parameters) (sites []models.Site) {
+func QueryLocations(queryString string) ([]string, error) {
 	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
 	}
 	defer db.Close()
 
-	query := `SELECT * FROM sites WHERE (city = ? OR region = ? or department = ? or postcode = ?)AND type = ?;`
-	//query := `SELECT * FROM sites WHERE spellfix1_city MATCH ? AND type = ?;`
+	query := `SELECT DISTINCT city FROM sites WHERE city LIKE ? UNION SELECT DISTINCT region FROM sites WHERE region LIKE ? UNION SELECT DISTINCT department FROM sites WHERE department LIKE ? LIMIT 10;`
 
-	rows, err := db.Query(query, parameters.Location, parameters.Location, parameters.Location, parameters.Location, parameters.Types)
+	stmt, err := db.Prepare(query)
 	if err != nil {
-		log.Fatal(err)
+		return nil, err
+	}
+	defer stmt.Close()
+
+	pattern := "%" + queryString + "%"
+	rows, err := stmt.Query(pattern, pattern, pattern)
+	if err != nil {
+		return nil, err
 	}
 	defer rows.Close()
 
-	sites = make([]models.Site, 0)
+	var locations []string
+
+	for rows.Next() {
+		var location string
+
+		err := rows.Scan(&location)
+		if err != nil {
+			return nil, err
+		}
+
+		locations = append(locations, location)
+	}
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return locations, nil
+}
+
+func CheckIfLocationExistsInDB(location string) (bool, error) {
+	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
+	if err != nil {
+		return false, err
+	}
+	defer db.Close()
+
+	query := `SELECT EXISTS(SELECT 1 FROM sites WHERE city = ? OR region = ? OR department = ? OR postcode = ?);`
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return false, err
+	}
+	defer stmt.Close()
+
+	var exists bool
+
+	err = stmt.QueryRow(location, location, location, location).Scan(&exists)
+	if err != nil {
+		return false, err
+	}
+
+	return exists, nil
+}
+
+func QuerySitesFromDB(parameters models.Parameters) ([]models.Site, error) {
+	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
+	if err != nil {
+		return nil, err
+	}
+	defer db.Close()
+
+	query := `SELECT * FROM sites WHERE (city = ? OR region = ? OR department = ? OR postcode = ?) AND type = ?;`
+
+	stmt, err := db.Prepare(query)
+	if err != nil {
+		return nil, err
+	}
+	defer stmt.Close()
+
+	rows, err := stmt.Query(parameters.Location, parameters.Location, parameters.Location, parameters.Location, parameters.Types)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+
+	var sites []models.Site
 
 	for rows.Next() {
 		var (
@@ -45,7 +116,7 @@ func QueryFromDB(parameters models.Parameters) (sites []models.Site) {
 
 		err := rows.Scan(&id, &name, &lat, &lng, &_type, &postcode, &region, &department, &city, &street, &website, &description)
 		if err != nil {
-			log.Fatal(err)
+			return nil, err
 		}
 
 		site := models.Site{
@@ -64,10 +135,11 @@ func QueryFromDB(parameters models.Parameters) (sites []models.Site) {
 		}
 
 		sites = append(sites, site)
-
-		if err := rows.Err(); err != nil {
-			log.Fatal(err)
-		}
 	}
-	return sites
+
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+
+	return sites, nil
 }

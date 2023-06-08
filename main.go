@@ -13,42 +13,22 @@ func main() {
 	r := gin.Default()
 
 	config := cors.DefaultConfig()
-	config.AllowAllOrigins = true
-	//config.AllowOrigins = []string{"https://map.verycurious.xyz/"}
+	config.AllowAllOrigins = false
+	config.AllowOrigins = []string{"https://map.verycurious.xyz/"}
 
 	r.Use(cors.New(config))
 
 	models.ConnectDatabase()
 	//data.LoadSites()
 
-	r.GET("/ping", func(c *gin.Context) {
-		c.JSON(
-			http.StatusOK,
-			gin.H{
-				"message": "pong",
-			})
-	})
-
-	r.POST("/api/v1/parameters", func(c *gin.Context) {
-		var parameters models.Parameters
-		err := c.BindJSON(&parameters)
+	r.GET("/api/v1/locations", func(c *gin.Context) {
+		queryString := c.DefaultQuery("q", "")
+		locations, err := services.QueryLocations(queryString)
 		if err != nil {
-			c.JSON(
-				http.StatusBadRequest,
-				gin.H{
-					"message": "bad request",
-				})
+			c.JSON(http.StatusInternalServerError, gin.H{"message": "Internal Server Error"})
 			return
 		}
-		results := services.QueryFromDB(parameters)
-		c.JSON(
-			http.StatusOK,
-			gin.H{
-				"Location": parameters.Location,
-				"Days":     parameters.Days,
-				"Types":    parameters.Types,
-				"Results":  results,
-			})
+		c.JSON(http.StatusOK, gin.H{"locations": locations})
 	})
 
 	r.POST("/api/v1/tsp", func(c *gin.Context) {
@@ -58,11 +38,46 @@ func main() {
 			c.JSON(
 				http.StatusBadRequest,
 				gin.H{
-					"message": "bad request",
+					"message": "Bad request",
 				})
 			return
 		}
-		siteResults := services.QueryFromDB(parameters)
+		if len(parameters.Types) == 0 {
+			c.JSON(
+				http.StatusBadRequest,
+				gin.H{
+					"message": "No site type",
+				})
+			return
+		}
+		if parameters.Days <= 0 {
+			c.JSON(
+				http.StatusBadRequest,
+				gin.H{
+					"message": "Invalid days",
+				})
+			return
+		}
+
+		locationExists, err := services.CheckIfLocationExistsInDB(parameters.Location)
+		if parameters.Location == "" || !locationExists || err != nil {
+			c.JSON(
+				http.StatusBadRequest,
+				gin.H{
+					"message": "Invalid location",
+				})
+			return
+		}
+
+		siteResults, err := services.QuerySitesFromDB(parameters)
+		if err != nil {
+			c.JSON(
+				http.StatusInternalServerError,
+				gin.H{
+					"message": "Internal Server Error",
+				})
+			return
+		}
 
 		pointToSite := make(map[int]models.Site)
 
