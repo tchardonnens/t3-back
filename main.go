@@ -14,7 +14,7 @@ func main() {
 
 	config := cors.DefaultConfig()
 	config.AllowAllOrigins = false
-	config.AllowOrigins = []string{"https://map.verycurious.xyz/"}
+	config.AllowOrigins = []string{"https://map.verycurious.xyz"}
 
 	r.Use(cors.New(config))
 
