@@ -1,6 +1,5 @@
-FROM golang:latest
-
-LABEL maintainer="Thomas Chardonnens <thomas.chardonnens@berkeley.edu>"
+# First stage: build
+FROM golang:1.20 as builder
 
 WORKDIR /app
 
@@ -11,6 +10,13 @@ RUN go mod download
 COPY . .
 
 RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o main .
+
+# Second stage: runtime
+FROM alpine:latest
+
+WORKDIR /app
+
+COPY --from=builder /app/main /app/main
 
 EXPOSE 8080
 
