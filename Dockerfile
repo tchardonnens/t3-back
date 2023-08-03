@@ -1,5 +1,5 @@
 # First stage: build
-FROM golang:1.20 as builder
+FROM golang:latest as builder
 
 WORKDIR /app
 
@@ -9,7 +9,7 @@ RUN go mod download
 
 COPY . .
 
-RUN CGO_ENABLED=1 GOOS=linux go build -a -installsuffix cgo -o main .
+RUN CGO_ENABLED=0 GOOS=linux go build -o main .
 
 # Second stage: runtime
 FROM alpine:latest
