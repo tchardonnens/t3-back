@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/glebarez/go-sqlite"
 )
 
 func LoadSites() {
@@ -28,7 +28,7 @@ func LoadSites() {
 		log.Fatal("No records found at: " + csvFile.Name())
 	}
 
-	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
+	db, err := sql.Open("sqlite", os.Getenv("DB_PATH"))
 	if err != nil {
 		log.Fatal(err)
 	}
