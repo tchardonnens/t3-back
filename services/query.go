@@ -5,11 +5,11 @@ import (
 	"os"
 	"t3/m/v2/models"
 
-	_ "github.com/mattn/go-sqlite3"
+	_ "github.com/glebarez/go-sqlite"
 )
 
 func QueryLocations(queryString string) ([]string, error) {
-	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
+	db, err := sql.Open("sqlite", os.Getenv("DB_PATH"))
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func QueryLocations(queryString string) ([]string, error) {
 }
 
 func CheckIfLocationExistsInDB(location string) (bool, error) {
-	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
+	db, err := sql.Open("sqlite", os.Getenv("DB_PATH"))
 	if err != nil {
 		return false, err
 	}
@@ -76,7 +76,7 @@ func CheckIfLocationExistsInDB(location string) (bool, error) {
 }
 
 func QuerySitesFromDB(parameters models.Parameters) ([]models.Site, error) {
-	db, err := sql.Open("sqlite3", os.Getenv("DB_PATH"))
+	db, err := sql.Open("sqlite", os.Getenv("DB_PATH"))
 	if err != nil {
 		return nil, err
 	}
